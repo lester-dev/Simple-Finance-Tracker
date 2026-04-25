@@ -33,8 +33,8 @@ body {
   font-family: "Bahnschrift", "Segoe UI", sans-serif;
   color: var(--ink);
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 2px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.03) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 2px, transparent 2px);
   background-size: 32px 32px;
 }
 
