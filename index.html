@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Finance Tracker</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="./app.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-block">
+          <p class="eyebrow">Personal cash flow</p>
+          <h1>Simple Finance Tracker</h1>
+          <p class="lead">
+            Add income and expenses, keep an eye on your monthly plan, and
+            review where the money is moving.
+          </p>
+        </div>
+
+        <div class="toolbar">
+          <label class="field compact-field">
+            <span>Period</span>
+            <select id="periodFilter" name="periodFilter"></select>
+          </label>
+          <button id="demoButton" class="secondary-button" type="button">
+            Reload demo
+          </button>
+          <button id="resetButton" class="ghost-button" type="button">
+            Clear data
+          </button>
+        </div>
+      </header>
+
+      <main class="dashboard">
+        <section class="summary-band" aria-label="Summary">
+          <article class="metric-tile accent-balance">
+            <span class="metric-label">Net cash flow</span>
+            <strong id="balanceValue" class="metric-value">₱0.00</strong>
+            <span id="balanceMeta" class="metric-meta">For the selected period</span>
+          </article>
+          <article class="metric-tile accent-income">
+            <span class="metric-label">Income</span>
+            <strong id="incomeValue" class="metric-value">₱0.00</strong>
+            <span class="metric-meta">Money in</span>
+          </article>
+          <article class="metric-tile accent-expense">
+            <span class="metric-label">Expenses</span>
+            <strong id="expenseValue" class="metric-value">₱0.00</strong>
+            <span class="metric-meta">Money out</span>
+          </article>
+          <article class="metric-tile accent-budget">
+            <span class="metric-label">Budget left</span>
+            <strong id="budgetValue" class="metric-value">₱0.00</strong>
+            <span id="budgetMeta" class="metric-meta">Against monthly plan</span>
+          </article>
+          <article class="metric-tile accent-rate">
+            <span class="metric-label">Savings rate</span>
+            <strong id="savingsRateValue" class="metric-value">0%</strong>
+            <span class="metric-meta">Net / income</span>
+          </article>
+        </section>
+
+        <section class="workspace">
+          <div class="primary-column">
+            <section class="panel composer-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-kicker">Entry</p>
+                  <h2 id="formTitle">Add transaction</h2>
+                </div>
+                <button
+                  id="cancelEditButton"
+                  class="ghost-button hidden"
+                  type="button"
+                >
+                  Cancel edit
+                </button>
+              </div>
+
+              <form id="transactionForm" class="transaction-form">
+                <div class="field-row">
+                  <label class="field">
+                    <span>Type</span>
+                    <select id="typeInput" name="type" required>
+                      <option value="expense">Expense</option>
+                      <option value="income">Income</option>
+                    </select>
+                  </label>
+
+                  <label class="field">
+                    <span>Date</span>
+                    <input id="dateInput" name="date" type="date" required />
+                  </label>
+                </div>
+
+                <div class="field-row">
+                  <label class="field grow-field">
+                    <span>Description</span>
+                    <input
+                      id="descriptionInput"
+                      name="description"
+                      type="text"
+                      maxlength="64"
+                      placeholder="Groceries, paycheck, utilities"
+                      required
+                    />
+                  </label>
+
+                  <label class="field">
+                    <span>Amount</span>
+                    <input
+                      id="amountInput"
+                      name="amount"
+                      type="number"
+                      min="0.01"
+                      step="0.01"
+                      placeholder="0.00"
+                      required
+                    />
+                  </label>
+                </div>
+
+                <div class="field-row">
+                  <label class="field">
+                    <span>Category</span>
+                    <select id="categoryInput" name="category" required></select>
+                  </label>
+
+                  <label class="field grow-field">
+                    <span>Note</span>
+                    <input
+                      id="noteInput"
+                      name="note"
+                      type="text"
+                      maxlength="80"
+                      placeholder="Optional detail"
+                    />
+                  </label>
+                </div>
+
+                <div class="form-actions">
+                  <button class="primary-button" type="submit" id="saveButton">
+                    Save transaction
+                  </button>
+                  <p id="formMessage" class="form-message" aria-live="polite"></p>
+                </div>
+              </form>
+            </section>
+
+            <section class="panel budget-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-kicker">Plan</p>
+                  <h2>Monthly budget</h2>
+                </div>
+              </div>
+
+              <form id="budgetForm" class="budget-form">
+                <label class="field">
+                  <span>Target monthly spending cap</span>
+                  <input
+                    id="budgetInput"
+                    name="budget"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                  />
+                </label>
+                <button class="secondary-button" type="submit">Update budget</button>
+              </form>
+
+              <div class="budget-progress">
+                <div class="budget-copy">
+                  <strong id="budgetProgressLabel">₱0.00 used</strong>
+                  <span id="budgetProgressMeta">0% of this month's plan</span>
+                </div>
+                <div class="progress-track" aria-hidden="true">
+                  <div id="budgetProgressBar" class="progress-fill"></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel filter-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-kicker">Focus</p>
+                  <h2>Filter ledger</h2>
+                </div>
+              </div>
+
+              <div class="filter-grid">
+                <label class="field">
+                  <span>Search</span>
+                  <input
+                    id="searchInput"
+                    type="search"
+                    placeholder="Find a description or note"
+                  />
+                </label>
+                <label class="field">
+                  <span>Type</span>
+                  <select id="typeFilter">
+                    <option value="all">All entries</option>
+                    <option value="income">Income</option>
+                    <option value="expense">Expenses</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Category</span>
+                  <select id="categoryFilter">
+                    <option value="all">All categories</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Sort</span>
+                  <select id="sortFilter">
+                    <option value="date-desc">Newest first</option>
+                    <option value="date-asc">Oldest first</option>
+                    <option value="amount-desc">Largest amount</option>
+                    <option value="amount-asc">Smallest amount</option>
+                  </select>
+                </label>
+              </div>
+            </section>
+          </div>
+
+          <div class="secondary-column">
+            <section class="panel ledger-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-kicker">Ledger</p>
+                  <h2>Recent activity</h2>
+                </div>
+                <span id="ledgerCount" class="panel-meta">0 entries</span>
+              </div>
+
+              <div id="transactionList" class="transaction-list"></div>
+            </section>
+
+            <section class="panel breakdown-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-kicker">Breakdown</p>
+                  <h2>Spending by category</h2>
+                </div>
+              </div>
+
+              <div id="categoryBreakdown" class="breakdown-list"></div>
+            </section>
+
+            <section class="panel trend-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-kicker">Trend</p>
+                  <h2>Six-month flow</h2>
+                </div>
+              </div>
+
+              <div id="trendList" class="trend-list"></div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
